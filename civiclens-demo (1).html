@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CivicLens — Smart City Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a1227;--card:rgba(255,255,255,.038);
+  --border:rgba(56,189,248,.12);--border-g:rgba(56,189,248,.28);
+  --cyan:#38bdf8;--teal:#0ea5e9;--green:#10b981;--amber:#f59e0b;
+  --red:#d995a0;--muted:#64748b;--text:#e2e8f0;--dim:#94a3b8;
+  --ffd:'Syne',sans-serif;--ffb:'Plus Jakarta Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--ffb);background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:4px}
+.screen{display:none;min-height:100vh;animation:fu .3s ease}
+.screen.active{display:flex;flex-direction:column}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* LOGIN */
+#sl{background:var(--ink);align-items:center;justify-content:center;padding:20px 14px;position:relative;overflow:hidden}
+.lg-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+.lg-orb{position:absolute;width:580px;height:580px;background:radial-gradient(ellipse,rgba(14,165,233,.09) 0%,transparent 65%);top:-180px;left:50%;transform:translateX(-50%);pointer-events:none}
+.lbox{position:relative;z-index:2;background:rgba(16,22,35,.93);border:1px solid var(--border);border-radius:22px;padding:40px 32px;width:100%;max-width:440px;backdrop-filter:blur(20px);box-shadow:0 0 70px rgba(14,165,233,.1)}
+.logo-r{display:flex;align-items:center;gap:11px;margin-bottom:4px}
+.logo-ic{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--teal));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 14px rgba(56,189,248,.3)}
+.logo-t{font-family:var(--ffd);font-size:24px;font-weight:800;background:linear-gradient(120deg,#fff 30%,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-s{font-size:12px;color:var(--dim);margin-bottom:24px}
+.seg{display:flex;background:rgba(255,255,255,.04);border-radius:9px;padding:3px;gap:3px;margin-bottom:13px}
+.seg-b{flex:1;padding:8px 0;border:none;background:none;border-radius:7px;color:var(--dim);font-family:var(--ffb);font-size:13px;cursor:pointer;transition:all .2s}
+.seg-b.on{background:var(--cyan);color:var(--ink);font-weight:700}
+.fg{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--card);margin-bottom:13px;transition:.2s}
+.fg:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.08)}
+.fpfx{padding:12px 10px 12px 13px;color:var(--dim);font-size:13px;display:flex;align-items:center;border-right:1px solid var(--border);user-select:none;white-space:nowrap}
+.fi{flex:1;padding:12px 12px;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--ffb);outline:none}
+.fi::placeholder{color:var(--muted)}
+.fi-solo{width:100%;padding:12px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--ffb);outline:none;transition:.2s;display:none;margin-bottom:13px}
+.fi-solo.sh{display:block}
+.fi-solo:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.08)}
+#otp-a{display:none;margin-bottom:13px}
+.otp-hint{font-size:12px;color:var(--dim);text-align:center;margin-bottom:9px}
+.otp-hint strong{color:var(--cyan)}
+.otp-boxes{display:flex;gap:7px;justify-content:center;margin-bottom:9px}
+.ob{width:41px;height:47px;background:var(--card);border:1.5px solid var(--border);border-radius:9px;text-align:center;font-size:19px;font-weight:700;font-family:var(--ffd);color:var(--cyan);outline:none;transition:.2s}
+.ob:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.1)}
+.otp-sub{font-size:11px;color:var(--dim);text-align:center}
+.otp-sub a{color:var(--cyan);cursor:pointer;text-decoration:underline}
+.rlbl{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--cyan);margin-bottom:9px;margin-top:17px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:17px}
+.rc{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px 10px;cursor:pointer;text-align:center;position:relative;transition:all .25s;overflow:hidden}
+.rc::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cyan),var(--teal));opacity:0;transition:.25s}
+.rc:hover{border-color:rgba(56,189,248,.3);transform:translateY(-2px)}
+.rc.on{border-color:var(--cyan)}.rc.on::before{opacity:.07}
+.rc-ck{position:absolute;top:8px;right:8px;width:16px;height:16px;background:var(--cyan);border-radius:50%;font-size:9px;color:var(--ink);display:none;align-items:center;justify-content:center;font-weight:700;z-index:1}
+.rc.on .rc-ck{display:flex}
+.rc-em{font-size:24px;margin-bottom:6px;position:relative;z-index:1}
+.rc-t{font-family:var(--ffd);font-size:13px;font-weight:700;color:#fff;position:relative;z-index:1}
+.rc.on .rc-t{color:var(--cyan)}
+.rc-s{font-size:10px;color:var(--dim);margin-top:2px;position:relative;z-index:1}
+.btn-p{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),var(--teal));border:none;border-radius:10px;color:var(--ink);font-size:13.5px;font-weight:700;font-family:var(--ffd);cursor:pointer;transition:all .25s;opacity:.3;pointer-events:none}
+.btn-p.live{opacity:1;pointer-events:all}
+.btn-p.live:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(56,189,248,.3)}
+.sec-row{display:flex;align-items:center;gap:5px;justify-content:center;margin-top:11px;flex-wrap:wrap}
+.sec-c{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.17);border-radius:20px;padding:3px 8px;font-size:10px;color:var(--green)}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:300;height:54px;display:flex;align-items:center;padding:0 13px;gap:8px;background:rgba(11,15,26,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(20px)}
+.nb{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nb-ic{width:27px;height:27px;border-radius:7px;background:linear-gradient(135deg,var(--cyan),var(--teal));display:flex;align-items:center;justify-content:center;font-size:13px}
+.nb-t{font-family:var(--ffd);font-size:15px;font-weight:800;background:linear-gradient(120deg,#fff,var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ntabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.ntabs::-webkit-scrollbar{display:none}
+.nt{flex-shrink:0;padding:6px 11px;background:none;border:none;color:var(--dim);font-family:var(--ffb);font-size:11.5px;cursor:pointer;border-radius:7px;transition:all .2s;white-space:nowrap}
+.nt:hover{background:rgba(255,255,255,.05);color:#fff}
+.nt.on{background:rgba(56,189,248,.1);color:var(--cyan);font-weight:600}
+.nav-r{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ib{width:31px;height:31px;background:var(--card);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;position:relative}
+.ib:hover{background:rgba(56,189,248,.08);border-color:var(--border-g)}
+.ping{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--ink);animation:pk 2s infinite}
+@keyframes pk{0%,100%{transform:scale(1)}50%{transform:scale(1.4);opacity:.6}}
+.av{width:31px;height:31px;background:linear-gradient(135deg,var(--cyan),var(--teal));border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--ffd);font-weight:700;font-size:11px;color:var(--ink);cursor:pointer}
+.btn-out{padding:5px 10px;background:none;border:1px solid rgba(244,63,94,.25);border-radius:7px;color:var(--red);font-size:11px;cursor:pointer;font-family:var(--ffb);transition:all .2s;white-space:nowrap}
+.btn-out:hover{background:rgba(244,63,94,.07)}
+
+/* PANES */
+.tp{display:none;flex:1}.tp.on{display:block;animation:fu .28s ease}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#060d1e,#0c1e3a 55%,#071628);padding:20px 14px 16px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero-orb{position:absolute;right:-70px;top:-70px;width:300px;height:300px;background:radial-gradient(circle,rgba(56,189,248,.07) 0%,transparent 65%);pointer-events:none}
+.htop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:15px;gap:8px}
+.hg{font-size:11px;color:var(--dim);letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px}
+.ht{font-family:var(--ffd);font-size:clamp(16px,5vw,23px);font-weight:800;color:#fff;line-height:1.2}
+.ht em{font-style:normal;color:var(--cyan)}
+.loc-p{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.18);border-radius:20px;padding:5px 10px;font-size:10px;color:var(--cyan);display:flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+@media(max-width:400px){.srow{grid-template-columns:repeat(2,1fr)}}
+.sb{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:11px 8px;text-align:center;transition:.2s}
+.sb:hover{border-color:var(--border-g);background:rgba(56,189,248,.05)}
+.sv{font-family:var(--ffd);font-size:20px;font-weight:800;line-height:1}
+.sl{font-size:10px;color:var(--dim);margin-top:3px}
+
+/* ALERT BANNERS */
+.astrip{padding:10px 13px;display:flex;flex-direction:column;gap:7px}
+.abar{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border-radius:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.17);border-left:3px solid var(--amber);animation:slR .4s ease}
+.abar.crit{background:rgba(244,63,94,.05);border-color:rgba(244,63,94,.17);border-left-color:var(--red)}
+.abar.info{background:rgba(56,189,248,.04);border-color:rgba(56,189,248,.13);border-left-color:var(--cyan)}
+@keyframes slR{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.ab-i{font-size:16px;flex-shrink:0;margin-top:1px}
+.ab-b{flex:1;min-width:0}
+.ab-t{font-size:12px;font-weight:600;color:#fff;margin-bottom:1px}
+.ab-d{font-size:11px;color:var(--dim);line-height:1.4}
+.ab-tm{font-size:10px;color:var(--muted);margin-top:2px}
+.ab-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;flex-shrink:0;padding:0 2px}
+.ab-x:hover{color:#fff}
+
+/* CANVAS MAP */
+.msec{padding:13px}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stitle{font-family:var(--ffd);font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.di{width:7px;height:7px;border-radius:50%}
+.mleg{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)}
+.ld{width:9px;height:9px;border-radius:50%}
+.ll{width:16px;height:3px;border-radius:2px}
+.mcw{position:relative;border-radius:13px;border:1px solid var(--border);overflow:hidden;background:#071628;cursor:crosshair;user-select:none}
+.mcw canvas{display:block;width:100%;height:100%}
+.mtt{position:absolute;background:rgba(13,20,38,.97);border:1px solid var(--border-g);border-radius:10px;padding:10px 12px;font-family:var(--ffb);font-size:12px;pointer-events:none;display:none;z-index:10;min-width:155px;max-width:210px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.mtt .tt-t{font-weight:700;color:#fff;margin-bottom:3px;font-size:12px}
+.mtt .tt-s{color:var(--dim);font-size:11px;margin-bottom:5px}
+.mtt .tt-b{display:inline-block;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:600}
+.mzoom{position:absolute;bottom:9px;right:9px;display:flex;flex-direction:column;gap:3px;z-index:5}
+.mzb{width:26px;height:26px;background:rgba(16,22,35,.92);border:1px solid var(--border);border-radius:5px;color:var(--cyan);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:monospace;transition:.2s}
+.mzb:hover{background:rgba(56,189,248,.1)}
+.mini-wrap{display:none;border-radius:10px;border:1px solid var(--border);overflow:hidden;background:#071628;grid-column:1/-1}
+.mini-wrap.sh{display:block}
+.mini-wrap canvas{display:block;width:100%;height:150px}
+
+/* FORM */
+.fwrap{padding:13px}
+.fcard{background:rgba(16,22,35,.7);border:1px solid var(--border);border-radius:17px;padding:20px 17px}
+.fh{font-family:var(--ffd);font-size:17px;font-weight:800;color:#fff;margin-bottom:3px}
+.fsub{font-size:12px;color:var(--dim);margin-bottom:16px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media(max-width:500px){.fgrid{grid-template-columns:1fr}}
+.fgrid .full{grid-column:1/-1}
+.flbl{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px;display:block}
+.finp,.fsel,.ftxt{width:100%;padding:11px 11px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;font-family:var(--ffb);outline:none;transition:.2s}
+.finp:focus,.fsel:focus,.ftxt:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,189,248,.07)}
+.finp::placeholder,.ftxt::placeholder{color:var(--muted)}
+.fsel option{background:#101623}
+.ftxt{min-height:82px;resize:vertical}
+.ferr{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(244,63,94,.08)!important}
+.att-row{display:flex;gap:9px;grid-column:1/-1}
+.att-btn{flex:1;padding:12px 8px;background:var(--card);border:1.5px dashed var(--border);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;color:var(--dim);font-family:var(--ffb);font-size:11px}
+.att-btn:hover{border-color:var(--border-g);color:var(--cyan);background:rgba(56,189,248,.04)}
+.att-btn.geo-on{border-color:var(--green);color:var(--green);background:rgba(16,185,129,.05)}
+.att-btn.ph-on{border-color:var(--cyan);color:var(--cyan);background:rgba(56,189,248,.05)}
+.att-ic{font-size:20px}
+.geo-box{display:none;grid-column:1/-1;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.17);border-radius:9px;padding:9px 12px;align-items:center;gap:8px}
+.geo-box.sh{display:flex}
+.gc{font-size:12px;color:var(--green);font-family:monospace}
+.ga{font-size:11px;color:var(--dim);margin-top:2px}
+.ph-row{display:none;flex-wrap:wrap;gap:7px;grid-column:1/-1}
+.ph-row.sh{display:flex}
+.ph-th{width:60px;height:60px;border-radius:8px;object-fit:cover;border:2px solid var(--border)}
+#ph-file{display:none}
+.btn-sub{grid-column:1/-1;width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan),var(--teal));border:none;border-radius:10px;color:var(--ink);font-size:14px;font-weight:700;font-family:var(--ffd);cursor:pointer;transition:all .25s;margin-top:2px}
+.btn-sub:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(56,189,248,.27)}
+
+/* SUCCESS */
+#sov{position:fixed;inset:0;background:rgba(11,15,26,.96);z-index:999;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+#sov.sh{display:flex}
+.sbox{background:rgba(16,22,35,.98);border:1px solid rgba(16,185,129,.28);border-radius:20px;padding:32px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 0 50px rgba(16,185,129,.1);animation:sp .48s cubic-bezier(.34,1.56,.64,1)}
+@keyframes sp{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.sr{width:66px;height:66px;border-radius:50%;background:rgba(16,185,129,.1);border:2.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 15px;animation:sr2 .55s .2s both}
+@keyframes sr2{from{transform:rotate(-20deg) scale(.5);opacity:0}to{transform:none;opacity:1}}
+.sh2{font-family:var(--ffd);font-size:20px;font-weight:800;color:#fff;margin-bottom:5px}
+.sref{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.17);border-radius:7px;padding:6px 12px;font-family:monospace;font-size:12.5px;color:var(--cyan);display:inline-block;margin-bottom:11px}
+.sgeo{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.17);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:5px;justify-content:center}
+.sdesc{font-size:12px;color:var(--dim);margin-bottom:15px;line-height:1.6}
+.stl{text-align:left;margin-bottom:18px}
+.sstep{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.sstep:last-child{border:none}
+.sdot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.sdot.done{background:var(--green)}.sdot.todo{background:var(--muted)}
+.stxt strong{color:#fff;font-size:12px;display:block}
+.stxt{font-size:11px;color:var(--dim)}
+.btn-sc{width:100%;padding:12px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;font-family:var(--ffd);cursor:pointer;transition:all .2s}
+.btn-sc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,.26)}
+
+/* PROJECTS */
+.psec{padding:13px}
+.pg{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:520px){.pg{grid-template-columns:1fr 1fr}}
+@media(min-width:860px){.pg{grid-template-columns:1fr 1fr 1fr}}
+.pcard{background:rgba(16,22,35,.7);border:1px solid var(--border);border-radius:13px;padding:15px;transition:all .25s}
+.pcard:hover{border-color:var(--border-g);transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,0,0,.26)}
+.pctop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px}
+.dc{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;padding:3px 7px;border-radius:5px}
+.dc-r{background:rgba(56,189,248,.1);color:var(--cyan)}
+.dc-w{background:rgba(29,78,216,.17);color:#60a5fa}
+.dc-p{background:rgba(245,158,11,.1);color:var(--amber)}
+.dc-pk{background:rgba(16,185,129,.08);color:var(--green)}
+.dc-s{background:rgba(168,85,247,.08);color:#c084fc}
+.sc{font-size:9.5px;font-weight:600;padding:3px 7px;border-radius:20px}
+.sc-o{background:rgba(56,189,248,.1);color:var(--cyan)}
+.sc-p{background:rgba(16,185,129,.08);color:var(--green)}
+.sc-d{background:rgba(244,63,94,.08);color:var(--red)}
+.pcn{font-family:var(--ffd);font-size:13.5px;font-weight:700;color:#fff;margin-bottom:4px}
+.pcl{font-size:11px;color:var(--dim);margin-bottom:10px}
+.pbb{background:rgba(255,255,255,.07);border-radius:6px;height:5px;overflow:hidden}
+.pb{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width 1.1s ease}
+.pbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+
+/* DELAYS */
+.dsec{padding:13px}
+.dcard{background:rgba(244,63,94,.05);border:1px solid rgba(244,63,94,.15);border-radius:12px;padding:14px;margin-bottom:10px;transition:.2s}
+.dcard:hover{border-color:rgba(244,63,94,.3)}
+.dch{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:6px;flex-wrap:wrap}
+.dct{font-weight:600;font-size:13px;color:#fff}
+.dcb{font-size:9.5px;font-weight:700;padding:3px 8px;background:rgba(244,63,94,.13);color:var(--red);border-radius:20px;white-space:nowrap}
+.dcd{font-size:11.5px;color:var(--dim);line-height:1.5;margin-bottom:8px}
+.dcm2{display:flex;gap:13px;flex-wrap:wrap}
+.dcm{font-size:10.5px;color:var(--muted)}
+.dcm span{color:var(--text)}
+
+/* ADMIN STATS */
+.astats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:13px}
+@media(min-width:600px){.astats{grid-template-columns:repeat(4,1fr)}}
+.as{background:rgba(16,22,35,.7);border:1px solid var(--border);border-radius:12px;padding:14px}
+.astop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.aic{width:33px;height:33px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.trend{font-size:10px;padding:2px 6px;border-radius:20px}
+.tup{background:rgba(244,63,94,.08);color:var(--red)}
+.tdn{background:rgba(16,185,129,.08);color:var(--green)}
+.asv{font-family:var(--ffd);font-size:23px;font-weight:800;color:#fff}
+.asl{font-size:11px;color:var(--dim);margin-top:1px}
+.atabs{display:flex;gap:3px;padding:0 13px 11px;overflow-x:auto;scrollbar-width:none}
+.atabs::-webkit-scrollbar{display:none}
+.atb{flex-shrink:0;padding:7px 13px;background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--dim);font-family:var(--ffb);font-size:12px;transition:all .2s;white-space:nowrap}
+.atb:hover{border-color:var(--border-g);color:#fff}
+.atb.on{background:rgba(56,189,248,.09);border-color:var(--cyan);color:var(--cyan);font-weight:600}
+.ap{display:none;padding:0 13px 22px}
+.ap.on{display:block;animation:fu .28s ease}
+.ic{background:rgba(16,22,35,.7);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:9px;transition:.2s}
+.ic:hover{border-color:var(--border-g)}
+.ictop{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px}
+.icic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.icm{flex:1;min-width:0}
+.ictt{font-weight:600;font-size:13px;color:#fff;margin-bottom:1px}
+.iclc{font-size:11px;color:var(--dim)}
+.icpr{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
+.prc{background:rgba(244,63,94,.17);color:var(--red)}
+.prh{background:rgba(244,63,94,.1);color:#fb7185}
+.prm{background:rgba(245,158,11,.1);color:var(--amber)}
+.prl{background:rgba(16,185,129,.08);color:var(--green)}
+.icbot{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ssel{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-size:11.5px;font-family:var(--ffb);cursor:pointer;outline:none;transition:.2s}
+.ssel:focus{border-color:var(--cyan)}
+.ssel option{background:#101623}
+.icdt{font-size:10.5px;color:var(--muted)}
+.hleg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:9px}
+.hl{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}
+.hlsw{width:13px;height:13px;border-radius:3px}
+.pi{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.pid{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.pin{font-weight:600;font-size:12.5px;color:#fff;flex:1}
+.pim{font-size:11px;color:var(--dim)}
+.pid2{font-size:10px;padding:2px 7px;background:rgba(16,185,129,.08);color:var(--green);border-radius:5px}
+
+/* ALERT DRAWER */
+#adr{position:fixed;top:54px;right:0;width:280px;max-width:calc(100vw - 14px);background:rgba(11,15,26,.98);border-left:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0 0 0 13px;z-index:250;padding:12px;max-height:calc(100vh - 54px);overflow-y:auto;transform:translateX(110%);transition:transform .3s cubic-bezier(.34,1.4,.64,1);backdrop-filter:blur(20px)}
+#adr.open{transform:translateX(0)}
+.drt{font-family:var(--ffd);font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.drx{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;transition:color .2s}
+.drx:hover{color:#fff}
+.dal{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:8px;padding:9px 10px;margin-bottom:7px}
+.dal.crit{border-left-color:var(--red)}
+.dal.inf{border-left-color:var(--cyan)}
+.dalt{font-size:12px;font-weight:600;color:#fff;margin-bottom:1px}
+.dald{font-size:10.5px;color:var(--dim);line-height:1.4}
+.daltm{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* MOBILE NAV */
+.mnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(11,15,26,.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);padding:5px 0 9px}
+.mni{display:flex;justify-content:space-around}
+.mb2{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;background:none;border:none;color:var(--dim);cursor:pointer;font-family:var(--ffb);font-size:10px;transition:color .2s}
+.mb2.on{color:var(--cyan)}
+.mbic{font-size:18px}
+@media(max-width:600px){.mnav{display:block}.ntabs{display:none}body{padding-bottom:58px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="sl" class="screen active">
+  <div class="lg-bg"></div><div class="lg-orb"></div>
+  <div class="lbox">
+    <div class="logo-r"><div class="logo-ic">🏙️</div><span class="logo-t">CivicLens</span></div>
+    <p class="logo-s">Smart City Reporting &amp; Project Tracking Platform</p>
+    <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--cyan);margin-bottom:7px">Sign in with</div>
+    <div class="seg">
+      <button class="seg-b on" id="sb-ph" onclick="switchMode('phone')">📱 Phone</button>
+      <button class="seg-b" id="sb-em" onclick="switchMode('email')">✉️ Email</button>
+    </div>
+    <div id="ph-wrap">
+      <div class="fg"><div class="fpfx">🇮🇳 +91</div><input class="fi" id="ph-inp" type="tel" maxlength="10" placeholder="10-digit mobile number" oninput="chk()"></div>
+    </div>
+    <input class="fi-solo" id="em-inp" type="email" placeholder="you@email.com" oninput="chk()">
+    <div id="otp-a">
+      <div class="otp-hint">OTP sent to <strong id="otp-dest"></strong></div>
+      <div class="otp-boxes">
+        <input class="ob" maxlength="1" oninput="on2(this,0)" onkeydown="ob2(event,this,0)">
+        <input class="ob" maxlength="1" oninput="on2(this,1)" onkeydown="ob2(event,this,1)">
+        <input class="ob" maxlength="1" oninput="on2(this,2)" onkeydown="ob2(event,this,2)">
+        <input class="ob" maxlength="1" oninput="on2(this,3)" onkeydown="ob2(event,this,3)">
+        <input class="ob" maxlength="1" oninput="on2(this,4)" onkeydown="ob2(event,this,4)">
+        <input class="ob" maxlength="1" oninput="on2(this,5)" onkeydown="ob2(event,this,5)">
+      </div>
+      <div class="otp-sub">Didn't receive? <a onclick="resend()">Resend</a> <span id="otmr"></span></div>
+    </div>
+    <div class="rlbl" id="rlbl">Select your role</div>
+    <div class="rgrid" id="rgrid">
+      <div class="rc" id="rc-c" onclick="pickRole('citizen')"><div class="rc-ck">✓</div><div class="rc-em">🏘️</div><div class="rc-t">Citizen</div><div class="rc-s">Report &amp; Track</div></div>
+      <div class="rc" id="rc-a" onclick="pickRole('admin')"><div class="rc-ck">✓</div><div class="rc-em">🏛️</div><div class="rc-t">Admin</div><div class="rc-s">Manage &amp; Monitor</div></div>
+    </div>
+    <button class="btn-p" id="lbtn" onclick="doLogin()">Send OTP →</button>
+    <div class="sec-row">
+      <div class="sec-c">🔒 OTP Verified</div>
+      <div class="sec-c">🛡️ End-to-End Secure</div>
+      <div class="sec-c">🚫 No Data Sold</div>
+    </div>
+  </div>
+</div>
+
+<!-- CITIZEN -->
+<div id="sc" class="screen">
+  <nav class="nav">
+    <div class="nb"><div class="nb-ic">🏙️</div><span class="nb-t">CivicLens</span></div>
+    <div class="ntabs">
+      <button class="nt on" onclick="cTab('home',this)">🗺️ Live Map</button>
+      <button class="nt" onclick="cTab('report',this)">📝 Report Issue</button>
+      <button class="nt" onclick="cTab('projects',this)">🏗️ Projects</button>
+      <button class="nt" onclick="cTab('delays',this)">⚠️ Delay Alerts</button>
+    </div>
+    <div class="nav-r">
+      <div class="ib" onclick="toggleDr()">🔔<div class="ping"></div></div>
+      <div class="av" id="cav">AK</div>
+      <button class="btn-out" onclick="logout()">← Logout</button>
+    </div>
+  </nav>
+
+  <div id="ct-home" class="tp on">
+    <div class="hero">
+      <div class="hero-orb"></div>
+      <div class="htop">
+        <div><div class="hg">Welcome back, <span id="cname">Arjun Kumar</span></div><div class="ht">Your City, <em>Your Voice</em></div></div>
+        <div class="loc-p">📍 Bengaluru South</div>
+      </div>
+      <div class="srow">
+        <div class="sb"><div class="sv" style="color:var(--cyan)">12</div><div class="sl">Projects</div></div>
+        <div class="sb"><div class="sv" style="color:var(--red)">8</div><div class="sl">Open Issues</div></div>
+        <div class="sb"><div class="sv" style="color:var(--green)">5</div><div class="sl">Planned</div></div>
+        <div class="sb"><div class="sv" style="color:var(--amber)">3</div><div class="sl">Delayed</div></div>
+      </div>
+    </div>
+    <div class="astrip">
+      <div class="abar crit"><div class="ab-i">🚨</div><div class="ab-b"><div class="ab-t">Flooding — Koramangala 5th Block</div><div class="ab-d">Storm drain overflow near BDA Complex. Emergency team deployed.</div><div class="ab-tm">⏱ 42 min ago · BBMP Emergency</div></div><button class="ab-x" onclick="this.closest('.abar').remove()">✕</button></div>
+      <div class="abar"><div class="ab-i">⚡</div><div class="ab-b"><div class="ab-t">Power Outage — Indiranagar Ward 83</div><div class="ab-d">BESCOM maintenance. 10AM–2PM today.</div><div class="ab-tm">📅 Scheduled · BESCOM</div></div><button class="ab-x" onclick="this.closest('.abar').remove()">✕</button></div>
+    </div>
+    <div class="msec">
+      <div class="shdr"><div class="stitle"><div class="di" style="background:var(--cyan)"></div>Live City Map — Bengaluru</div></div>
+      <div class="mleg">
+        <div class="leg"><div class="ll" style="background:#60a5fa"></div>Rivers &amp; Lakes</div>
+        <div class="leg"><div class="ld" style="background:#3b82f6"></div>Projects</div>
+        <div class="leg"><div class="ld" style="background:var(--red)"></div>Issues</div>
+        <div class="leg"><div class="ld" style="background:var(--green)"></div>Planned</div>
+        <div class="leg"><div class="ld" style="background:var(--amber)"></div>Delayed</div>
+      </div>
+      <div class="mcw" id="cwrap" style="height:320px">
+        <canvas id="cmap"></canvas>
+        <div class="mtt" id="ctt"></div>
+        <div class="mzoom"><button class="mzb" onclick="zm('c',1)">+</button><button class="mzb" onclick="zm('c',-1)">−</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ct-report" class="tp">
+    <div class="fwrap">
+      <div class="fcard">
+        <div class="fh">📝 Report an Issue</div>
+        <div class="fsub">Your report is geotagged &amp; routed to the right department instantly.</div>
+        <div class="fgrid">
+          <div><label class="flbl">Issue Type *</label>
+            <select class="fsel" id="f-type">
+              <option value="">Select type…</option>
+              <option>🛣️ Road / Pothole</option><option>💧 Water / Drainage</option>
+              <option>⚡ Electricity</option><option>🗑️ Garbage / Sanitation</option>
+              <option>🌳 Trees / Parks</option><option>🚦 Traffic / Signals</option>
+              <option>🏗️ Illegal Construction</option><option>🐾 Stray Animals</option>
+            </select>
+          </div>
+          <div><label class="flbl">Ward / Area *</label><input class="finp" id="f-ward" placeholder="e.g. Koramangala Ward 68"></div>
+          <div><label class="flbl">Landmark</label><input class="finp" id="f-land" placeholder="Near signal, ATM…"></div>
+          <div><label class="flbl">Priority</label>
+            <select class="fsel" id="f-pri">
+              <option>Low — Minor inconvenience</option><option>Medium — Affects daily life</option>
+              <option selected>High — Safety concern</option><option>Critical — Immediate danger</option>
+            </select>
+          </div>
+          <div class="full"><label class="flbl">Description *</label><textarea class="ftxt" id="f-desc" placeholder="Describe severity, size, duration…"></textarea></div>
+          <div class="att-row full">
+            <button class="att-btn" id="geo-btn" onclick="captureGeo()"><div class="att-ic">📍</div><div id="geo-lbl">Tap to Geotag</div></button>
+            <button class="att-btn" id="ph-ui" onclick="document.getElementById('ph-file').click()"><div class="att-ic">📷</div><div id="ph-lbl">Add Photos</div></button>
+            <input type="file" id="ph-file" accept="image/*" multiple onchange="handlePhotos(this)">
+          </div>
+          <div class="geo-box full" id="geo-box"><div>📍</div><div><div class="gc" id="geo-c"></div><div class="ga" id="geo-a"></div></div></div>
+          <div class="mini-wrap full" id="miniwrap"><canvas id="mini-cv"></canvas></div>
+          <div class="ph-row full" id="ph-row"></div>
+          <div class="full"><button class="btn-sub" onclick="subReport()">Submit Report →</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ct-projects" class="tp">
+    <div class="psec">
+      <div class="shdr" style="margin-bottom:11px"><div class="stitle"><div class="di" style="background:var(--cyan)"></div>City Projects</div></div>
+      <div class="pg" id="pgrid"></div>
+    </div>
+  </div>
+
+  <div id="ct-delays" class="tp">
+    <div class="dsec">
+      <div class="shdr" style="margin-bottom:11px"><div class="stitle"><div class="di" style="background:var(--red)"></div>Delayed &amp; Critical Alerts</div></div>
+      <div id="dlist"></div>
+    </div>
+  </div>
+
+  <div class="mnav">
+    <div class="mni">
+      <button class="mb2 on" onclick="cTab('home',this)"><div class="mbic">🗺️</div>Map</button>
+      <button class="mb2" onclick="cTab('report',this)"><div class="mbic">📝</div>Report</button>
+      <button class="mb2" onclick="cTab('projects',this)"><div class="mbic">🏗️</div>Projects</button>
+      <button class="mb2" onclick="cTab('delays',this)"><div class="mbic">⚠️</div>Alerts</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="sa" class="screen">
+  <nav class="nav">
+    <div class="nb"><div class="nb-ic">🏙️</div><span class="nb-t">CivicLens Admin</span></div>
+    <div class="ntabs">
+      <button class="nt on" onclick="aTab('issues',this)">📋 Issues</button>
+      <button class="nt" onclick="aTab('heatmap',this)">🔥 Heat Map</button>
+      <button class="nt" onclick="aTab('plan',this)">📐 Plan</button>
+    </div>
+    <div class="nav-r">
+      <div class="ib" onclick="toggleDr()">🔔<div class="ping"></div></div>
+      <div class="av">AD</div>
+      <button class="btn-out" onclick="logout()">← Logout</button>
+    </div>
+  </nav>
+  <div class="astats">
+    <div class="as"><div class="astop"><div class="aic" style="background:rgba(56,189,248,.08)">📋</div><div class="trend tup">↑12%</div></div><div class="asv">47</div><div class="asl">Total Issues</div></div>
+    <div class="as"><div class="astop"><div class="aic" style="background:rgba(244,63,94,.07)">🔴</div><div class="trend tup">↑5</div></div><div class="asv">18</div><div class="asl">Open/Unresolved</div></div>
+    <div class="as"><div class="astop"><div class="aic" style="background:rgba(245,158,11,.07)">🏗️</div><div class="trend tdn">↓2</div></div><div class="asv">9</div><div class="asl">Ongoing Projects</div></div>
+    <div class="as"><div class="astop"><div class="aic" style="background:rgba(16,185,129,.07)">✅</div><div class="trend tdn">+3</div></div><div class="asv">5</div><div class="asl">Planned This Month</div></div>
+  </div>
+  <div class="atabs">
+    <button class="atb on" onclick="aTab('issues',this)">📋 All Issues</button>
+    <button class="atb" onclick="aTab('heatmap',this)">🔥 Priority Heat Map</button>
+    <button class="atb" onclick="aTab('plan',this)">📐 Plan Projects</button>
+  </div>
+  <div id="at-issues" class="ap on"><div id="aissues"></div></div>
+  <div id="at-heatmap" class="ap">
+    <div class="hleg">
+      <div class="hl"><div class="hlsw" style="background:#f43f5e;opacity:.6"></div>High complaint zone</div>
+      <div class="hl"><div class="hlsw" style="background:#f59e0b;opacity:.6"></div>Medium zone</div>
+      <div class="hl"><div class="hlsw" style="background:#60a5fa;opacity:.6"></div>Rivers &amp; Lakes</div>
+    </div>
+    <div class="mcw" id="awrap" style="height:370px">
+      <canvas id="amap"></canvas>
+      <div class="mtt" id="att"></div>
+      <div class="mzoom"><button class="mzb" onclick="zm('a',1)">+</button><button class="mzb" onclick="zm('a',-1)">−</button></div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">Pulsing halos = priority complaint zones · Hover markers for details</p>
+  </div>
+  <div id="at-plan" class="ap">
+    <div class="fcard" style="margin-bottom:17px">
+      <div class="fh" style="font-size:15px;margin-bottom:13px">➕ Add Planned Project</div>
+      <div class="fgrid">
+        <div><label class="flbl">Project Name</label><input class="finp" id="pn" placeholder="e.g. Road Widening"></div>
+        <div><label class="flbl">Department</label><select class="fsel" id="pdept"><option>Roads</option><option>Water</option><option>Power</option><option>Parks</option><option>Sanitation</option></select></div>
+        <div><label class="flbl">Location / Ward</label><input class="finp" id="ploc" placeholder="Area name"></div>
+        <div><label class="flbl">Budget (₹ Lakh)</label><input class="finp" id="pbud" type="number" placeholder="50"></div>
+        <div class="full"><label class="flbl">Description</label><textarea class="ftxt" id="pdesc" style="min-height:62px" placeholder="Scope and objectives…"></textarea></div>
+        <div class="full"><button class="btn-sub" onclick="addProj()">Add to Map →</button></div>
+      </div>
+    </div>
+    <div id="plist"></div>
+  </div>
+  <div class="mnav">
+    <div class="mni">
+      <button class="mb2 on" onclick="aTab('issues',this)"><div class="mbic">📋</div>Issues</button>
+      <button class="mb2" onclick="aTab('heatmap',this)"><div class="mbic">🔥</div>Heat Map</button>
+      <button class="mb2" onclick="aTab('plan',this)"><div class="mbic">📐</div>Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div id="adr">
+  <div class="drt">🔔 Live City Alerts<button class="drx" onclick="toggleDr()">✕</button></div>
+  <div class="dal crit"><div class="dalt">🚨 Flooding — Koramangala 5th Block</div><div class="dald">Storm drain overflow. BMC emergency dispatched.</div><div class="daltm">42 min ago</div></div>
+  <div class="dal"><div class="dalt">⚡ Power Outage — Indiranagar Ward 83</div><div class="dald">BESCOM maintenance 10AM–2PM today.</div><div class="daltm">Scheduled</div></div>
+  <div class="dal inf"><div class="dalt">🏗️ Road Closure — MG Road</div><div class="dald">Metro Phase 3 work. Diversion via Brigade Rd.</div><div class="daltm">3 hrs ago · BMRCL</div></div>
+  <div class="dal"><div class="dalt">💧 Water Supply — Jayanagar</div><div class="dald">BWSSB repair. Restored by 6PM.</div><div class="daltm">1 hr ago · BWSSB</div></div>
+  <div class="dal crit"><div class="dalt">🌳 Tree Fall Risk — BTM Layout</div><div class="dald">BBMP flagged 3 trees post-storm.</div><div class="daltm">2 hrs ago</div></div>
+</div>
+
+<!-- SUCCESS -->
+<div id="sov">
+  <div class="sbox">
+    <div class="sr">✅</div>
+    <div class="sh2">Issue Reported!</div>
+    <div class="sref" id="sref">REF #CL-2024-7841</div>
+    <div class="sgeo" id="sgeo">📍 Geotagged: 12.9352°N, 77.6245°E</div>
+    <p class="sdesc">Assigned to <strong id="sdept">BBMP Roads</strong>. You'll receive SMS updates.</p>
+    <div class="stl">
+      <div class="sstep"><div class="sdot done"></div><div class="stxt"><strong>Submitted &amp; Geotagged</strong>Received and assigned to dept</div></div>
+      <div class="sstep"><div class="sdot todo"></div><div class="stxt"><strong>Under Review</strong>Est. 24 hrs — dept assessment</div></div>
+      <div class="sstep"><div class="sdot todo"></div><div class="stxt"><strong>Action Planned</strong>Work order issued</div></div>
+      <div class="sstep"><div class="sdot todo"></div><div class="stxt"><strong>Resolved</strong>Closed &amp; citizen notified</div></div>
+    </div>
+    <button class="btn-sc" onclick="closeSuc()">Back to Map →</button>
+  </div>
+</div>
+
+<script>
+/* DATA */
+const PROJ=[
+  {n:"Koramangala Road Widening",d:"Roads",s:"ongoing",p:65,l:"Koramangala 4th Block",x:.52,y:.55},
+  {n:"Indiranagar Water Pipeline",d:"Water",s:"ongoing",p:40,l:"Indiranagar 100ft Rd",x:.68,y:.32},
+  {n:"BTM Stormwater Drain",d:"Water",s:"delayed",p:22,l:"BTM Layout 2nd Stage",x:.4,y:.72},
+  {n:"HSR Solar Street Lights",d:"Power",s:"planned",p:5,l:"HSR Layout Sector 1",x:.62,y:.75},
+  {n:"Cubbon Park Restoration",d:"Parks",s:"ongoing",p:78,l:"Cubbon Park",x:.38,y:.28},
+  {n:"MG Road Metro Phase 3",d:"Roads",s:"planned",p:0,l:"MG Road – Trinity",x:.44,y:.25},
+];
+const ISS=[
+  {ic:"🛣️",n:"Deep Pothole on 100ft Road",l:"Indiranagar Ward 75",pr:"high",dt:"Today 9:14AM",s:"Submitted",x:.68,y:.32,bg:"rgba(56,189,248,.09)"},
+  {ic:"💧",n:"Sewage Overflow Near Market",l:"Koramangala 5th Block",pr:"crit",dt:"Today 7:30AM",s:"Under Review",x:.52,y:.55,bg:"rgba(244,63,94,.09)"},
+  {ic:"🗑️",n:"Garbage Pile Uncleared 4 Days",l:"BTM Layout 15th Cross",pr:"med",dt:"Yesterday",s:"Submitted",x:.4,y:.72,bg:"rgba(168,85,247,.07)"},
+  {ic:"⚡",n:"Street Light Not Working",l:"HSR Layout 27th Main",pr:"low",dt:"2 days ago",s:"Action Planned",x:.62,y:.75,bg:"rgba(245,158,11,.07)"},
+  {ic:"🌳",n:"Fallen Tree Blocking Road",l:"Jayanagar 4th Block",pr:"high",dt:"Today 11:00AM",s:"Submitted",x:.32,y:.6,bg:"rgba(16,185,129,.07)"},
+];
+const DELAYS=[
+  {n:"BTM Stormwater Drain",b:"3 Months Delayed",d:"BBMP Water",w:"BTM Layout Wards 167–170",o:"Sep 2024",e:"Dec 2024",r:"Land acquisition disputes and contractor change. BBMP issued new work order. Flooding ongoing during monsoon."},
+  {n:"Silk Board Flyover Phase 2",b:"6 Months Delayed",d:"NHAI/PWD",w:"Silk Board Junction",o:"Jun 2024",e:"Feb 2025",r:"Utility shifting delayed. 18 cable reroutes pending. Traffic impact ongoing."},
+  {n:"Jayanagar Water Mains Upgrade",b:"2 Months Delayed",d:"BWSSB",w:"Jayanagar 1–4 Blocks",o:"Nov 2024",e:"Jan 2025",r:"Equipment procurement delays. Supply disruptions twice weekly until completion."},
+];
+const HEAT=[
+  {x:.52,y:.55,r:.11,l:"Koramangala — 14 complaints",c:"#f43f5e"},
+  {x:.4,y:.72,r:.09,l:"BTM Layout — 9 complaints",c:"#f59e0b"},
+  {x:.68,y:.32,r:.08,l:"Indiranagar — 7 complaints",c:"#f43f5e"},
+  {x:.32,y:.6,r:.07,l:"Jayanagar — 5 complaints",c:"#f59e0b"},
+];
+const RIVERS=[
+  [[.1,.15],[.18,.22],[.28,.38],[.35,.5],[.38,.65],[.42,.8],[.5,.95]],
+  [[.6,.55],[.65,.58],[.7,.55],[.72,.6],[.68,.65],[.62,.62],[.6,.55]],
+  [[.48,.3],[.52,.28],[.55,.31],[.53,.34],[.49,.33],[.48,.3]],
+  [[.42,.12],[.46,.1],[.48,.14],[.44,.16],[.42,.12]],
+];
+
+/* STATE */
+let role=null,imode='phone',otpSent=false,gLat=null,gLng=null,drOpen=false,planned=[],oTmr=null,hAnim=0;
+const MS={c:{z:1,ox:0,oy:0,drag:false,lx:0,ly:0},a:{z:1,ox:0,oy:0,drag:false,lx:0,ly:0}};
+const CVS={c:null,a:null},INITED={c:false,a:false};
+let rAF={c:null,a:null};
+
+/* LOGIN */
+function switchMode(m){
+  imode=m;
+  document.getElementById('ph-wrap').style.display=m==='phone'?'':'none';
+  document.getElementById('em-inp').classList.toggle('sh',m==='email');
+  document.getElementById('sb-ph').classList.toggle('on',m==='phone');
+  document.getElementById('sb-em').classList.toggle('on',m==='email');
+  chk();
+}
+function chk(){
+  const ph=document.getElementById('ph-inp').value,em=document.getElementById('em-inp').value;
+  const ok=imode==='phone'?ph.length===10:/\S+@\S+\.\S+/.test(em);
+  document.getElementById('lbtn').classList.toggle('live',ok&&!!role);
+}
+function pickRole(r){
+  role=r;
+  document.getElementById('rc-c').classList.toggle('on',r==='citizen');
+  document.getElementById('rc-a').classList.toggle('on',r==='admin');
+  chk();
+}
+function doLogin(){
+  if(otpSent){
+    const bs=[...document.querySelectorAll('.ob')];
+    if(bs.map(b=>b.value).join('').length<6){bs.find(b=>!b.value)?.focus();return;}
+    enterApp();
+  } else {
+    const v=imode==='phone'?'+91 '+document.getElementById('ph-inp').value:document.getElementById('em-inp').value;
+    document.getElementById('otp-dest').textContent=v;
+    document.getElementById('otp-a').style.display='block';
+    document.getElementById('rlbl').style.display='none';
+    document.getElementById('rgrid').style.display='none';
+    document.getElementById('lbtn').textContent='Verify OTP →';
+    otpSent=true; startTmr(); setTimeout(()=>document.querySelector('.ob').focus(),50);
+  }
+}
+function startTmr(){let t=30;const sp=document.getElementById('otmr');clearInterval(oTmr);oTmr=setInterval(()=>{t--;sp.textContent=t>0?`(${t}s)`:'';if(t<=0)clearInterval(oTmr);},1000);}
+function resend(){startTmr();}
+function on2(el,i){
+  if(el.value.length===1){
+    const bs=document.querySelectorAll('.ob');
+    if(i<5)bs[i+1].focus();
+    if([...bs].map(b=>b.value).join('').length===6)setTimeout(doLogin,200);
+  }
+}
+function ob2(e,el,i){if(e.key==='Backspace'&&!el.value&&i>0)document.querySelectorAll('.ob')[i-1].focus();}
+function enterApp(){
+  clearInterval(oTmr);
+  const raw=imode==='phone'?document.getElementById('ph-inp').value:document.getElementById('em-inp').value.split('@')[0];
+  const nm=raw.charAt(0).toUpperCase()+raw.slice(1);
+  showSc(role==='citizen'?'sc':'sa');
+  if(role==='citizen'){
+    document.getElementById('cname').textContent=nm;
+    document.getElementById('cav').textContent=nm.slice(0,2).toUpperCase();
+    renderProj();renderDelays();
+    setTimeout(()=>initMap('c'),80);
+  } else {
+    renderAIss();renderPList();
+  }
+}
+function logout(){
+  role=null;otpSent=false;
+  ['ph-inp','em-inp'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('.rc').forEach(c=>c.classList.remove('on'));
+  document.getElementById('lbtn').classList.remove('live');
+  document.getElementById('lbtn').textContent='Send OTP →';
+  document.getElementById('otp-a').style.display='none';
+  document.getElementById('rlbl').style.display='';document.getElementById('rgrid').style.display='';
+  document.querySelectorAll('.ob').forEach(b=>b.value='');
+  INITED.c=false;INITED.a=false;CVS.c=null;CVS.a=null;
+  [rAF.c,rAF.a].forEach(f=>{if(f)cancelAnimationFrame(f);});
+  showSc('sl');
+}
+function showSc(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* TABS */
+function cTab(n,b){
+  document.querySelectorAll('#sc .tp').forEach(p=>p.classList.remove('on'));
+  document.getElementById('ct-'+n).classList.add('on');
+  document.querySelectorAll('#sc .nt,#sc .mb2').forEach(x=>{x.classList.remove('on');if((x.getAttribute('onclick')||'').includes("'"+n+"'"))x.classList.add('on');});
+  if(b)b.classList.add('on');
+  if(n==='home')setTimeout(()=>initMap('c'),60);
+}
+function aTab(n,b){
+  document.querySelectorAll('#sa .ap').forEach(p=>p.classList.remove('on'));
+  document.getElementById('at-'+n).classList.add('on');
+  document.querySelectorAll('.atb,#sa .mb2').forEach(x=>{x.classList.remove('on');if((x.getAttribute('onclick')||'').includes("'"+n+"'"))x.classList.add('on');});
+  if(b)b.classList.add('on');
+  if(n==='heatmap')setTimeout(()=>initMap('a'),60);
+}
+function toggleDr(){drOpen=!drOpen;document.getElementById('adr').classList.toggle('open',drOpen);}
+
+/* CANVAS MAP ENGINE */
+function tx(nx,W,m){return nx*W*m.z+m.ox;}
+function ty(ny,H,m){return ny*H*m.z+m.oy;}
+
+function initMap(id){
+  if(INITED[id])return;
+  INITED[id]=true;
+  const cv=document.getElementById(id==='c'?'cmap':'amap');
+  const wr=document.getElementById(id==='c'?'cwrap':'awrap');
+  const tt=document.getElementById(id==='c'?'ctt':'att');
+  CVS[id]=cv;
+  function resize(){cv.width=wr.clientWidth;cv.height=wr.clientHeight;drawMap(id);}
+  resize();new ResizeObserver(resize).observe(wr);
+
+  let hov=null;
+  function getMks(){
+    const W=cv.width,H=cv.height,m=MS[id],list=[];
+    if(id==='c'){
+      PROJ.forEach(p=>{const c=p.s==='delayed'?'#f59e0b':p.s==='planned'?'#10b981':'#3b82f6';list.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:13,c,em:p.s==='delayed'?'⚠️':p.s==='planned'?'🟢':'📌',n:p.n,sub:p.l,badge:p.d+' · '+p.s,bc:c+'22'});});
+      ISS.forEach(p=>{list.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:11,c:'#f43f5e',em:'🔴',n:p.n,sub:p.l,badge:p.pr.toUpperCase()+' · '+p.s,bc:'rgba(244,63,94,.15)'});});
+    } else {
+      PROJ.forEach(p=>{const c=p.s==='delayed'?'#f59e0b':p.s==='planned'?'#10b981':'#3b82f6';list.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:12,c,em:'📌',n:p.n,sub:p.l,badge:p.d,bc:c+'22'});});
+      ISS.forEach(p=>{list.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:10,c:'#f43f5e',em:'⚠️',n:p.n,sub:p.l,badge:p.pr,bc:'rgba(244,63,94,.15)'});});
+      planned.forEach(p=>{list.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:11,c:'#10b981',em:'🟢',n:p.n,sub:p.l,badge:'Planned',bc:'rgba(16,185,129,.15)'});});
+    }
+    return list;
+  }
+  function onMv(e){
+    const rc=cv.getBoundingClientRect();
+    const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+    const mx=(cx-rc.left)*(cv.width/rc.width),my=(cy-rc.top)*(cv.height/rc.height);
+    if(MS[id].drag){MS[id].ox+=mx-MS[id].lx;MS[id].oy+=my-MS[id].ly;MS[id].lx=mx;MS[id].ly=my;drawMap(id);return;}
+    let f=null;for(const k of getMks()){if(Math.hypot(mx-k.x,my-k.y)<k.r+8){f=k;break;}}
+    if(f!==hov){hov=f;if(f){tt.style.display='block';tt.innerHTML=`<div class="tt-t">${f.n}</div><div class="tt-s">${f.sub}</div><span class="tt-b" style="background:${f.bc};color:#fff">${f.badge}</span>`;const px=Math.min(f.x+16,cv.width-220),py=Math.max(f.y-10,4);tt.style.left=px+'px';tt.style.top=py+'px';}else{tt.style.display='none';}}
+  }
+  cv.addEventListener('mousemove',onMv);
+  cv.addEventListener('touchmove',e=>{e.preventDefault();onMv(e);},{passive:false});
+  cv.addEventListener('mousedown',e=>{const rc=cv.getBoundingClientRect();MS[id].drag=true;MS[id].lx=(e.clientX-rc.left)*(cv.width/rc.width);MS[id].ly=(e.clientY-rc.top)*(cv.height/rc.height);});
+  cv.addEventListener('mouseup',()=>{MS[id].drag=false;});
+  cv.addEventListener('mouseleave',()=>{MS[id].drag=false;tt.style.display='none';hov=null;});
+  cv.addEventListener('touchstart',e=>{const rc=cv.getBoundingClientRect();MS[id].drag=true;MS[id].lx=(e.touches[0].clientX-rc.left)*(cv.width/rc.width);MS[id].ly=(e.touches[0].clientY-rc.top)*(cv.height/rc.height);},{passive:true});
+  cv.addEventListener('touchend',()=>{MS[id].drag=false;});
+  cv.addEventListener('wheel',e=>{e.preventDefault();zm(id,e.deltaY<0?1:-1,e.offsetX,e.offsetY);},{passive:false});
+  function loop(){hAnim=(hAnim+.018)%(Math.PI*2);drawMap(id);rAF[id]=requestAnimationFrame(loop);}
+  rAF[id]=requestAnimationFrame(loop);
+}
+
+function zm(id,dir,cx,cy){
+  const cv=CVS[id];if(!cv)return;
+  const W=cv.width,H=cv.height,m=MS[id],oz=m.z;
+  m.z=Math.max(.4,Math.min(5,m.z+dir*.22));
+  const px=cx!==undefined?cx:W/2,py=cy!==undefined?cy:H/2;
+  m.ox=px-(px-m.ox)*(m.z/oz);m.oy=py-(py-m.oy)*(m.z/oz);
+  drawMap(id);
+}
+
+function drawMap(id){
+  const cv=CVS[id];if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,m=MS[id];
+  ctx.fillStyle='#071628';ctx.fillRect(0,0,W,H);
+  /* Grid */
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  const gs=40*m.z,ox2=((m.ox%gs)+gs)%gs,oy2=((m.oy%gs)+gs)%gs;
+  for(let x=ox2;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=oy2;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  /* Roads */
+  const roads=[[[0,.28],[1,.28]],[[0,.55],[1,.55]],[[0,.72],[1,.72]],[[.38,0],[.38,1]],[[.52,0],[.52,1]],[[.68,0],[.68,1]],[[0,.1],[.6,.45]],[[.4,0],[.75,.8]]];
+  roads.forEach(r=>{ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=Math.max(1,2*m.z);r.forEach(([nx,ny],i)=>{const sx=tx(nx,W,m),sy=ty(ny,H,m);i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);});ctx.stroke();});
+  /* Rivers (BLUE) */
+  RIVERS.forEach(rv=>{
+    ctx.beginPath();
+    rv.forEach(([nx,ny],i)=>{const sx=tx(nx,W,m),sy=ty(ny,H,m);i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);});
+    const loop=rv[0][0]===rv[rv.length-1][0]&&rv[0][1]===rv[rv.length-1][1];
+    if(loop){ctx.fillStyle='rgba(59,130,246,.3)';ctx.fill();ctx.strokeStyle='rgba(96,165,250,.5)';ctx.lineWidth=Math.max(1,1.5*m.z);ctx.stroke();}
+    else{ctx.strokeStyle='rgba(96,165,250,.65)';ctx.lineWidth=Math.max(2,4*m.z);ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();ctx.shadowColor='rgba(96,165,250,.3)';ctx.shadowBlur=6*m.z;ctx.strokeStyle='rgba(147,197,253,.35)';ctx.lineWidth=Math.max(1,2*m.z);ctx.stroke();ctx.shadowBlur=0;}
+  });
+  /* Park area */
+  ctx.fillStyle='rgba(16,185,129,.07)';ctx.beginPath();[[.28,.15],[.38,.12],[.44,.22],[.36,.3],[.26,.26]].forEach(([nx,ny],i)=>{const sx=tx(nx,W,m),sy=ty(ny,H,m);i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy);});ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(16,185,129,.14)';ctx.lineWidth=1;ctx.stroke();
+  /* Heat zones admin */
+  if(id==='a'){
+    HEAT.forEach(h=>{
+      const sx=tx(h.x,W,m),sy=ty(h.y,H,m),br=h.r*Math.min(W,H)*m.z,pulse=Math.sin(hAnim)*0.11+1;
+      const gr=ctx.createRadialGradient(sx,sy,0,sx,sy,br*pulse);
+      gr.addColorStop(0,h.c+'44');gr.addColorStop(.5,h.c+'22');gr.addColorStop(1,h.c+'00');
+      ctx.beginPath();ctx.arc(sx,sy,br*pulse,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+      ctx.beginPath();ctx.arc(sx,sy,br*pulse,0,Math.PI*2);ctx.setLineDash([5,4]);ctx.strokeStyle=h.c+'88';ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);
+      ctx.beginPath();ctx.arc(sx,sy,br*.28,0,Math.PI*2);ctx.fillStyle=h.c+'55';ctx.fill();
+    });
+  }
+  /* Markers */
+  const mks=[];
+  if(id==='c'){
+    PROJ.forEach(p=>{const c=p.s==='delayed'?'#f59e0b':p.s==='planned'?'#10b981':'#3b82f6';mks.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:13,c,em:p.s==='delayed'?'⚠️':p.s==='planned'?'🟢':'📌',n:p.n,sub:p.l,badge:p.d+' · '+p.s,bc:c+'22'});});
+    ISS.forEach(p=>{mks.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:11,c:'#f43f5e',em:'🔴',n:p.n,sub:p.l,badge:p.pr,bc:'rgba(244,63,94,.15)'});});
+  } else {
+    PROJ.forEach(p=>{const c=p.s==='delayed'?'#f59e0b':p.s==='planned'?'#10b981':'#3b82f6';mks.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:12,c,em:'📌',n:p.n,sub:p.l,badge:p.d,bc:c+'22'});});
+    ISS.forEach(p=>{mks.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:10,c:'#f43f5e',em:'⚠️',n:p.n,sub:p.l,badge:p.pr,bc:'rgba(244,63,94,.15)'});});
+    planned.forEach(p=>{mks.push({x:tx(p.x,W,m),y:ty(p.y,H,m),r:11,c:'#10b981',em:'🟢',n:p.n,sub:p.l,badge:'Planned',bc:'rgba(16,185,129,.15)'});});
+  }
+  mks.forEach(mk=>{
+    if(mk.x<-20||mk.x>W+20||mk.y<-20||mk.y>H+20)return;
+    ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(mk.x,mk.y,mk.r,0,Math.PI*2);ctx.fillStyle=mk.c;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;
+    ctx.font=`${Math.round(mk.r)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(mk.em,mk.x,mk.y+1);
+  });
+  ctx.font=`500 ${Math.min(11,11*m.z)}px sans-serif`;ctx.fillStyle='rgba(255,255,255,.1)';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('Bengaluru, Karnataka',7,7);
+}
+
+/* MINI MAP */
+function drawMini(lat,lng){
+  const cv=document.getElementById('mini-cv');
+  const wr=document.getElementById('miniwrap');
+  cv.width=wr.clientWidth||300;cv.height=150;
+  const ctx=cv.getContext('2d'),W=cv.width,H=150;
+  ctx.fillStyle='#071628';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=28){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=28){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.beginPath();ctx.moveTo(W*.1,H*.15);ctx.quadraticCurveTo(W*.3,H*.5,W*.55,H*.9);
+  ctx.strokeStyle='rgba(96,165,250,.55)';ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
+  ctx.shadowColor='rgba(96,165,250,.3)';ctx.shadowBlur=6;ctx.strokeStyle='rgba(147,197,253,.35)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;
+  const px=W/2,py=H/2;
+  ctx.beginPath();ctx.arc(px,py,28,0,Math.PI*2);ctx.strokeStyle='rgba(56,189,248,.22)';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+  ctx.shadowColor='rgba(244,63,94,.4)';ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(px,py,12,0,Math.PI*2);ctx.fillStyle='#f43f5e';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;
+  ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('📍',px,py+1);
+  ctx.font='10px monospace';ctx.fillStyle='rgba(56,189,248,.7)';ctx.textAlign='left';ctx.fillText(`${lat.toFixed(5)}°N  ${lng.toFixed(5)}°E`,6,H-9);
+}
+
+/* REPORT FORM */
+function captureGeo(){
+  const btn=document.getElementById('geo-btn'),lbl=document.getElementById('geo-lbl');
+  lbl.textContent='🔄 Locating…';btn.style.opacity='.6';
+  setTimeout(()=>{
+    gLat=12.9352+(Math.random()-.5)*.016;gLng=77.6245+(Math.random()-.5)*.016;
+    btn.classList.add('geo-on');lbl.textContent='✅ Location Captured';btn.style.opacity='1';
+    document.getElementById('geo-box').classList.add('sh');
+    document.getElementById('geo-c').textContent=`${gLat.toFixed(6)}°N, ${gLng.toFixed(6)}°E`;
+    document.getElementById('geo-a').textContent='Near Koramangala 5th Block, Bengaluru South';
+    document.getElementById('miniwrap').classList.add('sh');
+    drawMini(gLat,gLng);
+  },1400);
+}
+function handlePhotos(inp){
+  const row=document.getElementById('ph-row');
+  row.innerHTML='';row.classList.add('sh');
+  document.getElementById('ph-lbl').textContent=`✅ ${inp.files.length} Photo${inp.files.length>1?'s':''} Added`;
+  document.getElementById('ph-ui').classList.add('ph-on');
+  [...inp.files].forEach(f=>{const img=document.createElement('img');img.className='ph-th';img.src=URL.createObjectURL(f);row.appendChild(img);});
+}
+function subReport(){
+  const ty2=document.getElementById('f-type').value,wa=document.getElementById('f-ward').value.trim(),de=document.getElementById('f-desc').value.trim();
+  let err=false;
+  [['f-type',ty2],['f-ward',wa],['f-desc',de]].forEach(([id,v])=>{document.getElementById(id).classList.toggle('ferr',!v);if(!v)err=true;});
+  if(err){document.querySelector('.ferr')?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const dm={'🛣️ Road / Pothole':'BBMP Roads','💧 Water / Drainage':'BWSSB','⚡ Electricity':'BESCOM','🗑️ Garbage / Sanitation':'BBMP Sanitation','🌳 Trees / Parks':'BBMP Parks','🚦 Traffic / Signals':'BBMP Traffic','🏗️ Illegal Construction':'BBMP Planning','🐾 Stray Animals':'BBMP Veterinary'};
+  document.getElementById('sref').textContent='REF #CL-'+(new Date().getFullYear())+'-'+(7000+~~(Math.random()*999));
+  document.getElementById('sdept').textContent=dm[ty2]||'BBMP';
+  document.getElementById('sgeo').textContent=gLat?`📍 Geotagged: ${gLat.toFixed(4)}°N, ${gLng.toFixed(4)}°E`:'📍 Location: '+wa;
+  document.getElementById('sov').classList.add('sh');
+}
+function closeSuc(){
+  document.getElementById('sov').classList.remove('sh');
+  ['f-type','f-ward','f-land','f-desc'].forEach(id=>{const e=document.getElementById(id);if(e){e.value='';e.classList.remove('ferr');}});
+  document.getElementById('geo-box').classList.remove('sh');document.getElementById('miniwrap').classList.remove('sh');
+  document.getElementById('ph-row').classList.remove('sh');document.getElementById('ph-row').innerHTML='';
+  document.getElementById('geo-btn').classList.remove('geo-on');document.getElementById('geo-lbl').textContent='Tap to Geotag';
+  document.getElementById('ph-ui').classList.remove('ph-on');document.getElementById('ph-lbl').textContent='Add Photos';
+  document.getElementById('ph-file').value='';gLat=null;gLng=null;
+  cTab('home',null);
+  document.querySelectorAll('#sc .nt').forEach((b,i)=>b.classList.toggle('on',i===0));
+  document.querySelectorAll('#sc .mb2').forEach((b,i)=>b.classList.toggle('on',i===0));
+}
+
+/* RENDER */
+function renderProj(){
+  const g=document.getElementById('pgrid');if(g.innerHTML)return;
+  const dc={Roads:'dc-r',Water:'dc-w',Power:'dc-p',Parks:'dc-pk',Sanitation:'dc-s'};
+  const sc={ongoing:'sc-o',planned:'sc-p',delayed:'sc-d'};
+  g.innerHTML=PROJ.map(p=>`<div class="pcard"><div class="pctop"><span class="dc ${dc[p.d]||''}">${p.d}</span><span class="sc ${sc[p.s]||''}">${p.s}</span></div><div class="pcn">${p.n}</div><div class="pcl">📍 ${p.l}</div><div class="pbl"><span>Progress</span><span>${p.p}%</span></div><div class="pbb"><div class="pb" style="width:0%" data-w="${p.p}%"></div></div></div>`).join('');
+  setTimeout(()=>g.querySelectorAll('.pb').forEach(b=>b.style.width=b.dataset.w),110);
+}
+function renderDelays(){
+  const el=document.getElementById('dlist');if(el.innerHTML)return;
+  el.innerHTML=DELAYS.map(d=>`<div class="dcard"><div class="dch"><span class="dct">⚠️ ${d.n}</span><span class="dcb">${d.b}</span></div><div class="dcd">${d.r}</div><div class="dcm2"><div class="dcm">Dept: <span>${d.d}</span></div><div class="dcm">Ward: <span>${d.w}</span></div><div class="dcm">Was: <span>${d.o}</span></div><div class="dcm">Est: <span>${d.e}</span></div></div></div>`).join('');
+}
+function renderAIss(){
+  const el=document.getElementById('aissues');if(el.innerHTML)return;
+  const pc={crit:'prc',high:'prh',med:'prm',low:'prl'},pl={crit:'Critical',high:'High',med:'Medium',low:'Low'};
+  const sts=['Submitted','Under Review','Action Planned','In Progress','Resolved'];
+  el.innerHTML=ISS.map((i,idx)=>`<div class="ic"><div class="ictop"><div class="icic" style="background:${i.bg}">${i.ic}</div><div class="icm"><div class="ictt">${i.n}</div><div class="iclc">📍 ${i.l}</div></div><span class="icpr ${pc[i.pr]}">${pl[i.pr]}</span></div><div class="icbot"><select class="ssel" onchange="ISS[${idx}].s=this.value">${sts.map(s=>`<option${s===i.s?' selected':''}>${s}</option>`).join('')}</select><span class="icdt">${i.dt}</span></div></div>`).join('');
+}
+function addProj(){
+  const n=document.getElementById('pn').value.trim(),dept=document.getElementById('pdept').value,loc=document.getElementById('ploc').value.trim();
+  if(!n||!loc){alert('Name and location required.');return;}
+  const p={n,d:dept,l:loc,s:'planned',p:0,x:.25+Math.random()*.5,y:.2+Math.random()*.6};
+  planned.push(p);PROJ.push({...p,name:p.n});
+  document.getElementById('pgrid').innerHTML='';
+  renderPList();
+  ['pn','ploc','pbud','pdesc'].forEach(id=>document.getElementById(id).value='');
+  if(CVS.a)drawMap('a');if(CVS.c)drawMap('c');
+}
+function renderPList(){
+  const el=document.getElementById('plist');
+  el.innerHTML=planned.length?planned.map(p=>`<div class="pi"><div class="pid"></div><div class="pin">${p.n}</div><div class="pim">${p.l}</div><div class="pid2">${p.d}</div></div>`).join(''):`<p style="color:var(--muted);font-size:12px;text-align:center;padding:16px">No projects added yet.</p>`;
+}
+</script>
+</body>
+</html>
